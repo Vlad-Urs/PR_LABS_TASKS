@@ -7,7 +7,6 @@ info = {
     "nume" : '',
     "pret" : '',
     "seller" : '',
-    "telefon" : '',
     "date" : '',
     "tipul tranzactiei" : '',
     "vizualizari" : '',
@@ -41,10 +40,6 @@ def scrap_info(url, info):
     currency = soup.find('span', {'class' : 'adPage__content__price-feature__prices__price__currency'})
     if currency:
         info["pret"] += currency.get_text()
-
-    # get the phone number
-    info["telefon"] = soup.find('strong').get_text() + soup.find('span', {'class' : 'js-phone-number-format number-format'}).get_text()
-
         
     # extract characteristics
     characteristics = []
