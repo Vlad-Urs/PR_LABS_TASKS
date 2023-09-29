@@ -62,7 +62,10 @@ def scrap_info(url, info):
 
     
     # get description
-    info.update({"description" : soup.find('div', {'class' : 'adPage__content__description grid_18'}).get_text()})
+    try:
+        info.update({"description" : soup.find('div', {'class' : 'adPage__content__description grid_18'}).get_text()})
+    except:
+        info.update({"description" : "no user description"})
 
     
 
