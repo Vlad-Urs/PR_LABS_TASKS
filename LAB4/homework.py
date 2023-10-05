@@ -36,15 +36,31 @@ for i in range(products_number):
     products_page_raw = products_page_raw.replace("/prod"," ",1)
     product_links.append(link)
 
+info["products_list"] = []
 for prod in product_links:
+    new_prod = dict()
+    product_raw = html_text.extract_text(tcp_parser(prod)).replace('HTTP/1.1 200 OK Content-Type: text/html', '').splitlines()
 
-    info[f"product_page {prod[-1]}"] = html_text.extract_text(tcp_parser(prod)).replace('HTTP/1.1 200 OK Content-Type: text/html', '').splitlines()
+
+    for line in product_raw:
+        if 'name' in line:
+            new_prod['name'] = line.replace('name : ', '')
+            continue
+        elif 'price' in line:
+            new_prod['price'] = line.replace('price : ', '')
+            continue
+        elif 'author' in line:
+            new_prod['author'] = line.replace('author : ', '')
+            continue
+        elif 'description' in line:
+            new_prod['description'] = line.replace('description : ', '')
+            continue
+    
+    info["products_list"].append(new_prod)
 
 print(product_links)
 
-for key in info:
-    print(f'{key} : {info[key]}')
 
 with open("scrapped_pages.json", "w") as outfile:
-    json.dump(info, outfile)
+    json.dump(info, outfile, indent = 4)
     
