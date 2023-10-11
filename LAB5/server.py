@@ -1,6 +1,9 @@
 import socket
 import threading
 import json
+import os
+import base64
+
 # Server configuration
 HOST = '127.0.0.1' # Loopback address for localhost
 PORT = 12345 # Port to listen on
@@ -26,6 +29,24 @@ def handle_client(client_socket, client_address):
             if client != client_socket and message["type"] == "message": # find alternative to this IF
                 data = json.dumps(message)
                 client.send(data.encode())
+            
+            # client uploads a file
+            if message["type"] == 'upload':
+                save_path = './server_media/'
+                print('got here')
+                print(message)
+                # upload txt file
+                if message["payload"]["extension_type"] == 'txt':
+                    complete_name = os.path.join(save_path, message["payload"]["file_name"])
+                    with open(complete_name, "w") as f:
+                        f.write(message["payload"]["contents"])
+
+                # upload image
+                if message["payload"]["extension_type"] == 'jpg':
+                    complete_name = os.path.join(save_path, message["payload"]["file_name"])
+                    with open(complete_name, "wb") as f:
+                        f.write(message["payload"]["contents"].encode('utf-8'))
+
     # Remove the client from the list
     clients.remove(client_socket)
     client_socket.close()
