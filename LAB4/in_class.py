@@ -32,7 +32,7 @@ def handle_request(client_socket):
     response_content = ''
     status_code = 200
 
-    with open('products.json', 'r') as json_file:
+    with open('LAB4/products.json', 'r') as json_file:
         json_load = json.load(json_file)
 
     # Define a simple routing mechanism
