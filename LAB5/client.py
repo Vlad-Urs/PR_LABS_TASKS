@@ -18,12 +18,19 @@ print(f"Connected to {HOST}:{PORT}")
 # Function to receive and display messages
 def receive_messages():
     while True:
-        message = json.loads(client_socket.recv(1024).decode('utf-8'))
+        message = json.loads(client_socket.recv(8192).decode('utf-8'))
         if not message:
             break # Exit the loop when the server disconnects
         if message["type"] == 'message':
-            print('got here')
             print(f"{message['payload']['name']} : {message['payload']['message']}")
+
+        if message["type"] == "download":
+            if message["payload"]["file_name"] != 'n/a':
+                complete_name = os.path.join('./client_media/','downloaded_' + message["payload"]["file_name"])
+                with open(complete_name, "w+") as file:
+                    file.write(message["payload"]['contents'])
+            else:
+                print('file does not exist')
 
 
 receive_thread = threading.Thread(target=receive_messages)
@@ -101,11 +108,11 @@ while True:
             if complete_name.lower().endswith('.jpg'):
 
                 
-                with open(complete_name, "rb") as image_file:
-                    image_bytes = base64.b64encode(image_file.read()).decode("utf-8")
+                '''with open(complete_name, "rb") as image_file:
+                    image_bytes = base64.b64encode(image_file.read()).decode("utf-8")'''
 
                 file_json["payload"]["extension_type"] = 'txt'
-                file_json["payload"]["contents"] = image_bytes
+                file_json["payload"]["contents"] = 'image_bytes'
                 file_json["payload"]["file_name"] = file_name
 
                 data = json.dumps(file_json)
@@ -114,6 +121,15 @@ while True:
         else:
             print('The path provided is incorrect or the file does not exist')
         
+    elif input_message == 'dwn':
+        file_name = input('Provide file name: ')
+        file_json['type'] = 'download'
+        file_json["payload"]["file_name"] = file_name
+
+        data = json.dumps(file_json)
+        client_socket.send(data.encode())
+
+
     elif input_message == 'exit':
         data = json.dumps(exit_json)
         client_socket.send(data.encode())

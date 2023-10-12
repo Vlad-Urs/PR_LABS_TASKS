@@ -20,7 +20,7 @@ def handle_client(client_socket, client_address):
     print(f"Accepted connection from {client_address}")
     while True:
         try:
-            message = json.loads(client_socket.recv(1024).decode())
+            message = json.loads(client_socket.recv(8192).decode())
         except:
             break # Exit the loop when the client disconnects
         print("from " + str(client_address) + " message type: " + message["type"])
@@ -31,7 +31,7 @@ def handle_client(client_socket, client_address):
                 client.send(data.encode())
             
             # client uploads a file
-            if message["type"] == 'upload':
+            elif message["type"] == 'upload':
                 save_path = './server_media/'
                 print('got here')
                 print(message)
@@ -42,10 +42,24 @@ def handle_client(client_socket, client_address):
                         f.write(message["payload"]["contents"])
 
                 # upload image
-                if message["payload"]["extension_type"] == 'jpg':
+                elif message["payload"]["extension_type"] == 'jpg':
                     complete_name = os.path.join(save_path, message["payload"]["file_name"])
+                    data : str = message["payload"]["contents"]
                     with open(complete_name, "wb") as f:
-                        f.write(message["payload"]["contents"].encode('utf-8'))
+                        f.write(base64.b64decode(data).encode())
+
+            # handle download
+            elif message["type"] == 'download':
+                file_path = './server_media/'
+                complete_name = os.path.join(file_path, message["payload"]["file_name"])
+
+                if os.path.isfile(complete_name):
+                    file_json = message
+                    with open(complete_name, 'r') as file:
+                        file_json["payload"]['contents'] = file.read()
+
+                    data = json.dumps(file_json)
+                    client.send(data.encode())
 
     # Remove the client from the list
     clients.remove(client_socket)
