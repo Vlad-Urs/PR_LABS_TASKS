@@ -20,7 +20,7 @@ def handle_client(client_socket, client_address):
     print(f"Accepted connection from {client_address}")
     while True:
         try:
-            message = json.loads(client_socket.recv(8192).decode())
+            message = json.loads(client_socket.recv(100000).decode())
         except:
             break # Exit the loop when the client disconnects
         print("from " + str(client_address) + " message type: " + message["type"])
@@ -33,8 +33,7 @@ def handle_client(client_socket, client_address):
             # client uploads a file
             elif message["type"] == 'upload':
                 save_path = './server_media/'
-                print('got here')
-                print(message)
+
                 # upload txt file
                 if message["payload"]["extension_type"] == 'txt':
                     complete_name = os.path.join(save_path, message["payload"]["file_name"])
@@ -44,22 +43,31 @@ def handle_client(client_socket, client_address):
                 # upload image
                 elif message["payload"]["extension_type"] == 'jpg':
                     complete_name = os.path.join(save_path, message["payload"]["file_name"])
-                    data : str = message["payload"]["contents"]
                     with open(complete_name, "wb") as f:
-                        f.write(base64.b64decode(data).encode())
+                        f.write(base64.b64decode(message["payload"]["contents"]))
 
             # handle download
             elif message["type"] == 'download':
                 file_path = './server_media/'
                 complete_name = os.path.join(file_path, message["payload"]["file_name"])
 
+                file_json = message
                 if os.path.isfile(complete_name):
-                    file_json = message
-                    with open(complete_name, 'r') as file:
-                        file_json["payload"]['contents'] = file.read()
+                    if complete_name.endswith('.txt'):
+                        with open(complete_name, 'r') as file:
+                            file_json["payload"]['contents'] = file.read()
+                    elif complete_name.endswith('.jpg'):
+                        with open(complete_name, 'rb') as file:
+                            file_json["payload"]['contents'] = base64.b64encode(file.read()).decode("utf-8")
 
-                    data = json.dumps(file_json)
-                    client.send(data.encode())
+                else:
+                    message["payload"]["file_name"] = 'n/a'
+                
+
+                data = json.dumps(file_json)
+                client.send(data.encode())
+                
+
 
     # Remove the client from the list
     clients.remove(client_socket)
