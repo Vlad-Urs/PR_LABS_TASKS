@@ -1,0 +1,198 @@
+{
+    "openapi": "3.0.0",
+
+    "info": {
+      "description": "PR",
+      "version": "1.0.0",
+      "title": "SWAGGER API",
+      "license": {
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT"
+      }
+    },
+
+    "tags": [
+        {
+          "name": "Scooters API",
+          "description": "Test API"
+        }
+    ],
+
+    "servers": [
+        {
+        "url": "/"
+        }
+    ],
+
+    "components": {
+        "schemas": {
+            "Scooter": {
+                "type": "object",
+                "properties": {
+                    "name": { "type": "string" },
+                    "battery_level": { "type": "number" }
+                }
+            },
+            "Id":{
+                "type" : "integer",
+                "properties" : {
+                    "name" : { "type" : "integer" }
+                }
+            }
+        }
+    },
+
+    "paths": {
+        "/api/electro-scooters": {
+            "post": {
+                "tags": [ "add new scooter"],
+                "summary": "add new scooter",
+                "requestBody": {
+                    "description": "New scooter",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Scooter"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "CREATED",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    },
+                    "404": {
+                        "description": "NOT FOUND",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    }
+                }
+            }
+        },
+
+        "/api/electro-scooters/{id}": {
+            "get" :{
+                "tags": [ "get existing scooter" ],
+                "summary": "get existing scooter",
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Scooter id",
+                    "required": true,
+                    "type": "integer",
+                    "schema": {
+                        "$ref": "#/components/schemas/Id"
+                    }
+                }],
+               
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    },
+                    "404": {
+                        "description": "NOT FOUND",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    }
+                }
+            },
+
+            "put": {
+                "tags": [ "update existing scooter" ],
+                "summary": "update existing scoote",
+                "parameters": [{
+                    "name": "id",
+                    "in": "path",
+                    "description": "Scooter id",
+                    "required": true,
+                    "type": "integer",
+                    "schema": {
+                        "$ref": "#/components/schemas/Id"
+                    }
+                }],
+                
+                "requestBody": {
+                    "description": "update existing scooter",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Scooter"
+                            }
+                        }
+                    }
+                },
+
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    },
+                    "404": {
+                        "description": "NOT FOUND",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    }
+                }
+            },
+
+            "delete": {
+                "tags": [ "delete scooter" ],
+                "summary": "delete scooter",
+
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Scooter id",
+                        "required": true,
+                        "type": "integer",
+                        "schema": {
+                            "$ref": "#/components/schemas/Id"
+                        }
+                    },
+                    {
+                        "name": "X-Delete-Password",
+                        "in": "header",
+                        "description": "Password",
+                        "required": true,
+                        "schema": { "type": "string" }
+                    }
+                ],
+                
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    },
+                    "401": {
+                        "description": "UNAUTHORIZED",
+                        "schema":{
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    },
+                    "404": {
+                        "description": "NOT FOUND",
+                        "schema": {
+                            "$ref": "#/components/schemas/Scooter"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
