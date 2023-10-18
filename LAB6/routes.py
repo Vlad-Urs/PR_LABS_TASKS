@@ -71,7 +71,7 @@ def delete_electro_scooter(scooter_id):
             # Get the password from the request headers
             password = request.headers.get('X-Delete-Password')
             # Check if the provided password is correct
-            if password == 'your_secret_password': # Replace with your actual password
+            if password == 'goatedpassword': # Replace with your actual password
                 db.session.delete(scooter)
                 db.session.commit()
                 return jsonify({"message": "Electro Scooter deleted successfully"}), 200

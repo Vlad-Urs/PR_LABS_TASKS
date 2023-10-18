@@ -1,7 +1,9 @@
 # init_db.py
-from app import create_app, db, ElectroScooter
-def init_database():
-    app = create_app()
+from models.electro_scooter import ElectroScooter
+from models.database import db
+
+
+def init_database(app):
     with app.app_context():
         # Create the database tables
         db.create_all()
@@ -12,5 +14,5 @@ def init_database():
         db.session.add(sample_scooter_2)
         db.session.commit()
 
-if __name__ == "__main__":
-    init_database()
+        return app
+
