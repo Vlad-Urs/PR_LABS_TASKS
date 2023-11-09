@@ -2,7 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 
 
-info = {
+
+
+def scrap_info(url):
+    reqs = requests.get(url)
+    soup = BeautifulSoup(reqs.text, 'html.parser')
+
+    info = {
     "url" : '',
     "nume" : '',
     "pret" : '',
@@ -11,11 +17,9 @@ info = {
     "tipul tranzactiei" : '',
     "vizualizari" : '',
     "optiuni" : []
-}
+    }
 
-def scrap_info(url, info):
-    reqs = requests.get(url)
-    soup = BeautifulSoup(reqs.text, 'html.parser')
+    info["url"] = url
 
     # get the name
     info["nume"] = soup.find('h1').get_text()
@@ -67,11 +71,13 @@ def scrap_info(url, info):
     except:
         info.update({"description" : "no user description"})
 
+
+    return info
+
     
 
 url = input("Product site to be scraped: ")
-info["url"] = url
-scrap_info(url, info)
+scrapped_info = scrap_info(url)
 
-for key in info:
-    print(f"{key} : {info[key]}\n")
+for key in scrapped_info:
+    print(f"{key} : {scrapped_info[key]}\n")
