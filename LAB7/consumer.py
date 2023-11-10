@@ -7,14 +7,15 @@ from utils.info_crawler import scrap_info
 consumers = int(input("input number of consumers: "))
 host = 'localhost'
 
+lock = threading.Lock()
+
 def handle_consumer(consumer_index):
     connection = pika.BlockingConnection(
             pika.ConnectionParameters(host = host))
 
     channel = connection.channel()
     channel.queue_declare(queue='links', durable=False)
-    print(' [*] Waiting for messages. To exit press CTRL+C')
-
+    
     def callback(ch, method, properties, body):
         product = str(body.decode())
         print(f'Consumer no.{consumer_index} received product: {product}')
@@ -27,18 +28,14 @@ def handle_consumer(consumer_index):
 
         info = scrap_info(product)
         
-        if info is None:
-                print(f" [consumer no.{consumer_index}] could not scrap product: {product}")
-                ch.basic_reject(delivery_tag=method.delivery_tag)
-        else:
-            with threading.Lock():
-                exists = db.get(Product['url'] == product)
-                if exists is None:
+        with lock:
+            exists = db.get(Product['url'] == product)
+            if exists is None:
                     db.insert(info)
-                else:
-                    db.update(info, doc_ids=[exists.doc_id])
+            else:
+                db.update(info, doc_ids=[exists.doc_id])
 
-            print(f" [consumer no. {consumer_index}] has finished")
+            print(f" [consumer no.  {consumer_index}] has finished")
             ch.basic_ack(delivery_tag=method.delivery_tag)
             
 
@@ -48,6 +45,16 @@ def handle_consumer(consumer_index):
 
     channel.start_consuming()
 
-for i in range(consumers):
-    consumer_thread = threading.Thread(target = handle_consumer, args = (i + 1,))
-    consumer_thread.start()
+try:
+    print(' [*] Waiting for messages. To exit press CTRL+C')
+
+    for i in range(consumers):
+        consumer_thread = threading.Thread(target = handle_consumer, args = (i + 1,))
+        consumer_thread.start()
+
+except KeyboardInterrupt:
+    try:
+        sys.exit(0)
+    except SystemExit:
+        exit()
+
