@@ -11,7 +11,7 @@ channel = connection.channel()
 
 channel.queue_declare(queue='links')
 
-for product in scrape_links(url,[],1):
+for product in scrape_links(url,[],3):
     channel.basic_publish(exchange='',
                         routing_key='links',
                         body=product,

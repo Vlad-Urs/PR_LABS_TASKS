@@ -49,7 +49,7 @@ try:
     print(' [*] Waiting for messages. To exit press CTRL+C')
 
     for i in range(consumers):
-        consumer_thread = threading.Thread(target = handle_consumer, args = (i + 1,))
+        consumer_thread = threading.Thread(target = handle_consumer, args = [i + 1])
         consumer_thread.start()
 
 except KeyboardInterrupt:
@@ -57,4 +57,3 @@ except KeyboardInterrupt:
         sys.exit(0)
     except SystemExit:
         exit()
-
